@@ -3,6 +3,7 @@ import cors from "cors";
 import { MongoClient, ObjectId } from "mongodb";
 import dotenv from "dotenv";
 import bcrypt from 'bcrypt';
+import { v4 as uuid } from 'uuid';
 import joi from "joi";
 
 // Criação do servidor
@@ -27,7 +28,7 @@ export const db = mongoClient.db();
 const usuarioSchema = joi.object({
   nome: joi.string().required(),
   email: joi.string().email().required(),
-  senha: joi.string().required(),
+  senha: joi.string().min(3).required(),
 });
 
 
