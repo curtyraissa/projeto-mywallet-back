@@ -41,10 +41,9 @@ const loginSchema = joi.object({
 app.post("/cadastro", async (req, res) => {
   const { nome, email, senha } = req.body
 
-  const validation = cadastroSchema.validate(req.body)
+  const validation = cadastroSchema.validate(req.body, {aboutEarly: false})
   if(validation.error) {
-    console.log(validation.error.details)
-    res.status(422).send("")
+    res.status(422).send(validation.error.details.map(detail => detail.message))
   }
   res.sendStatus(201)
 
@@ -68,10 +67,9 @@ app.post("/cadastro", async (req, res) => {
 app.post("/", async (req, res) => {
   const { email, senha } = req.body
 
-  const validation = loginSchema.validate(req.body)
+  const validation = loginSchema.validate(req.body, {aboutEarly: false})
   if(validation.error) {
-    console.log(validation.error.details)
-    res.status(422).send("")
+    res.status(422).send(validation.error.details.map(detail => detail.message))
   }
   res.sendStatus(201)
 
