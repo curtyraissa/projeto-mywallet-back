@@ -1,8 +1,9 @@
 import express from "express";
 import cors from "cors";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import dotenv from "dotenv";
-// import joi from "joi";
+import bcrypt from 'bcrypt';
+import joi from "joi";
 
 // Criação do servidor
 const app = express();
@@ -23,9 +24,11 @@ try {
 export const db = mongoClient.db();
 
 // Schemas
-// export const usuarioSchema = joi.object({
-//     nome: joi.string().required()
-// })
+const usuarioSchema = joi.object({
+  nome: joi.string().required(),
+  email: joi.string().email().required(),
+  senha: joi.string().required(),
+});
 
 
 // Endpoints
@@ -49,7 +52,7 @@ app.post("/cadastro", async (req, res) => {
   
 });
 
-app.post("/login", async (req, res) => {
+app.post("/", async (req, res) => {
   const { email, senha } = req.body
 
   try{
@@ -69,23 +72,49 @@ app.post("/login", async (req, res) => {
 
   //finalizar com status de sucesso e enviar token para o cliente
   res.status(200).send(token)
-  
+
   } catch(err) {
     res.status(500).send(err.message)
   }
 });
 
 app.post("/nova-transacao/:tipo", async (req, res) => {
-  const { xxx } = req.body;
-  return res.status(422).send("Todos os campos são obrigatórios!");
+  
 });
 
 app.get("/home", async (req, res) => {
-  db.collection("home")
-    .find()
-    .toArray()
-    .then((home) => res.status(200).send(home))
-    .catch((err) => res.status(500).send(err.message));
+  // o cliente envia um header de authorization com o token
+  const {authorization}= req.headers
+
+  // pegar o token sem a palavra Bearer
+  const token = authorization?.replace("Bearer", "")
+
+  // se nao houver token, nao ha autozicao para continuar
+  if(!token) res.status(401).send("Token inexistente")
+
+  try{
+
+    //caso o token exista, descobrir se é valido
+    const sessao = await db.collection("sessoes").findOne({token})
+    if (!sessao) return res.status(401).send("token inválido")
+    
+    // guardar o token e o id, tendo o id, procurar dados
+    const usuario = await db.collection("usuarios").findOne({_id:new ObjectId(sessao.idUsuario)})
+    
+    // o usuario possui _id, nome e senha, mas nao podemos enviar a senha
+    delete usuario.senha
+    
+    //enviar resposta
+    res.send(usuario)
+
+} catch (err) {
+  res.status(500).send(err.message)
+}
+  // db.collection("home")
+  //   .find()  
+  //   .toArray()
+  //   .then((home) => res.status(200).send(home))
+  //   .catch((err) => res.status(500).send(err.message));
 });
 
 // Deixa o app escutando, à espera de requisições
