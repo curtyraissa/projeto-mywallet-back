@@ -25,8 +25,13 @@ try {
 export const db = mongoClient.db();
 
 // Schemas
-const usuarioSchema = joi.object({
+const cadastroSchema = joi.object({
   nome: joi.string().required(),
+  email: joi.string().email().required(),
+  senha: joi.string().min(3).required(),
+});
+
+const loginSchema = joi.object({
   email: joi.string().email().required(),
   senha: joi.string().min(3).required(),
 });
@@ -35,6 +40,13 @@ const usuarioSchema = joi.object({
 // Endpoints
 app.post("/cadastro", async (req, res) => {
   const { nome, email, senha } = req.body
+
+  const validation = cadastroSchema.validate(req.body)
+  if(validation.error) {
+    console.log(validation.error.details)
+    res.status(422).send("")
+  }
+  res.sendStatus(201)
 
   try{
     //verificar se esse e-mail ja foi cadastrado
@@ -55,6 +67,13 @@ app.post("/cadastro", async (req, res) => {
 
 app.post("/", async (req, res) => {
   const { email, senha } = req.body
+
+  const validation = loginSchema.validate(req.body)
+  if(validation.error) {
+    console.log(validation.error.details)
+    res.status(422).send("")
+  }
+  res.sendStatus(201)
 
   try{
   //verificar se o e-mail esta cadastrado
