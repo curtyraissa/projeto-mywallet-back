@@ -50,8 +50,29 @@ app.post("/cadastro", async (req, res) => {
 });
 
 app.post("/login", async (req, res) => {
-  const { xxx } = req.body;
-  return res.status(422).send("Todos os campos são obrigatórios!");
+  const { email, senha } = req.body
+
+  try{
+  //verificar se o e-mail esta cadastrado
+  const usuario = await db.collection("usuario").findOne({email})
+  if(!usuario) return res.status(404).send("E-mail não cadastrado")
+
+  //verificar se a senha digitada corresponde com a criptografada
+  const senhaCorreta = bcrypt.compareSync(senha, usuario.senha)
+  if(!senhaCorreta) return res.status(401).send("Senha Incorreta")
+
+  //se deu tudo certo, criar um token para enviar ao usuario
+  const token = uuid()
+
+  //guardar o token e o id do usuario para saber que ele esta logado
+  await db.collection("sessoes").insertOne(idUsuario: usuario._id, token)
+
+  //finalizar com status de sucesso e enviar token para o cliente
+  res.status(200).send(token)
+  
+  } catch(err) {
+    res.status(500).send(err.message)
+  }
 });
 
 app.post("/nova-transacao/:tipo", async (req, res) => {
