@@ -1,10 +1,9 @@
 import express from "express";
 import cors from "cors";
-import { MongoClient, ObjectId } from "mongodb";
-import dotenv from "dotenv";
+import { ObjectId } from "mongodb";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
-import joi from "joi";
+import dotenv from "dotenv";
 
 // Criação do servidor
 const app = express();
@@ -13,28 +12,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 dotenv.config();
-
-// Conexão com o Banco de Dados
-const mongoClient = new MongoClient(process.env.MONGO_URI);
-try {
-  await mongoClient.connect();
-  console.log("MongoDB conectado!");
-} catch (err) {
-  console.log(err.message);
-}
-export const db = mongoClient.db();
-
-// Schemas
-const cadastroSchema = joi.object({
-  nome: joi.string().required(),
-  email: joi.string().email().required(),
-  senha: joi.string().min(3).required(),
-});
-
-const loginSchema = joi.object({
-  email: joi.string().email().required(),
-  senha: joi.string().min(3).required(),
-});
 
 // Endpoints
 app.post("/cadastro", async (req, res) => {
@@ -64,7 +41,13 @@ app.post("/cadastro", async (req, res) => {
   }
 });
 
-app.post("/", async (req, res) => {
+// rotas
+app.post("/", getLogin);
+app.post("/nova-transacao/:tipo", getNovaTransacao);
+app.get("/home", getHome);
+
+//funcoes
+export async function getLogin(req, res) {
   const { email, senha } = req.body;
 
   const validation = loginSchema.validate(req.body, { aboutEarly: false });
@@ -95,11 +78,14 @@ app.post("/", async (req, res) => {
   } catch (err) {
     res.status(500).send(err.message);
   }
-});
+}
 
-app.post("/nova-transacao/:tipo", async (req, res) => {});
+export async function getNovaTransacao(req, res) {
 
-app.get("/home", async (req, res) => {
+  
+}
+
+export async function getHome(req, res) {
   // o cliente envia um header de authorization com o token
   const { authorization } = req.headers;
 
@@ -119,20 +105,32 @@ app.get("/home", async (req, res) => {
       .collection("usuarios")
       .findOne({ _id: new ObjectId(sessao.idUsuario) });
 
-    // o usuario possui _id, nome e senha, mas nao podemos enviar a senha
-    delete usuario.senha;
+  //   // o usuario possui _id, nome e senha, mas nao podemos enviar a senha
+  //   delete usuario.senha;
 
-    //enviar resposta
-    res.send(usuario);
-  } catch (err) {
-    res.status(500).send(err.message);
+  //   //enviar resposta
+  //   res.send(usuario);
+  // } catch (err) {
+  //   res.status(500).send(err.message);
+  // }
+
+  //caso o usuario exista, descobrir se ja tem cadastro
+  if (!usuario) {
+    return res.status(404).send("Usuario inexistente");
   }
-  // db.collection("home")
-  //   .find()
-  //   .toArray()
-  //   .then((home) => res.status(200).send(home))
-  //   .catch((err) => res.status(500).send(err.message));
-});
+} catch (err) {
+  return res.status(501).send(err);
+}
+
+try {
+  const lista = await db
+  .collection("transacao")
+  .find({idUsuario: sessao.idUsuario })
+  const data = {usuario: usuario.nome, lista}
+  return res.status(200).send(data)
+} catch(err){
+  return res.status(500).send(err)
+}
 
 // Deixa o app escutando, à espera de requisições
 const PORT = 5000;
