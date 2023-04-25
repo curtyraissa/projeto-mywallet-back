@@ -1,6 +1,6 @@
 import loginSchema from "../schemas/loginSchema.js";
 
-export const LoginMiddle = (req, res, next) => {
+export const loginMiddle = (req, res, next) => {
   const { email, senha } = req.body;
 
   if (
