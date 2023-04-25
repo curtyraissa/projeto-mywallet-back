@@ -82,7 +82,6 @@ export async function getLogin(req, res) {
 
 export async function getNovaTransacao(req, res) {
 
-  
 }
 
 export async function getHome(req, res) {
