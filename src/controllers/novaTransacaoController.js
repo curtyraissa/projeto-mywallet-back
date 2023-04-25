@@ -1,4 +1,4 @@
-import { db } from "../database/database.js";
+import db from "../database/db.js";
 import { ObjectId } from "mongodb";
 import dayjs from "dayjs";
 

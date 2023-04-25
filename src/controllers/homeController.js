@@ -1,4 +1,4 @@
-import { db } from "../database/database.js";
+import db from "../database/db.js";
 
 export async function getHome(req, res) {
   // o cliente envia um header de authorization com o token

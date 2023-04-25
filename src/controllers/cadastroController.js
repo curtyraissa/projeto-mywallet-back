@@ -1,4 +1,4 @@
-import { db } from "../database/database.js";
+import db from "../database/db.js";
 import bcrypt from "bcrypt";
 import cadastroSchema from "../schemas/cadastroSchema.js"
 
