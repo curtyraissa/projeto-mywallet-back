@@ -9,7 +9,7 @@ let db;
 const mongoClient = new MongoClient(process.env.MONGO_URI);
 try {
   await mongoClient.connect();
-  db = mongoClient.db("mywallet");
+  db = mongoClient.db("Cluster0");
   console.log("MongoDB conectado!");
 } catch (err) {
   console.log(err.message);
