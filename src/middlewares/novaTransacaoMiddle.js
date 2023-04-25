@@ -1,4 +1,4 @@
-import novaTransacaoSchema from "../schemas/novaTransacaoSchema";
+import novaTransacaoSchema from "../schemas/novaTransacaoSchema.js";
 
 export const novaTransacaoMiddle = (req, res, next) => {
   const { valor, descricao } = req.body;
