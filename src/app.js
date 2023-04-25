@@ -4,6 +4,7 @@ import { ObjectId } from "mongodb";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
 import dotenv from "dotenv";
+import dayjs from "dayjs"
 
 // Criação do servidor
 const app = express();
